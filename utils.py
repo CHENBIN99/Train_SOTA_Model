@@ -12,6 +12,7 @@ import math
 
 import torch.nn as nn
 import torch.nn.init as init
+import torch
 
 
 def get_mean_and_std(dataset):
@@ -43,7 +44,6 @@ def init_params(net):
             if m.bias:
                 init.constant(m.bias, 0)
 
-
 try:
 	_, term_width = os.popen('stty size', 'r').read().split()
 except:
@@ -53,6 +53,8 @@ term_width = int(term_width)
 TOTAL_BAR_LENGTH = 65.
 last_time = time.time()
 begin_time = last_time
+
+
 def progress_bar(current, total, msg=None):
     global last_time, begin_time
     if current == 0:
