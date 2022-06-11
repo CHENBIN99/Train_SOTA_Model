@@ -188,9 +188,6 @@ def train(epoch):
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
 
-        # progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-        #              % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
-
         if (iter + 1) % 10 == 0:
             print('Loss: %.3f | Acc: %.3f%% (%d/%d)' % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
             tb_writer.add_scalar('Train/Loss', loss.item(), iter)
@@ -236,7 +233,7 @@ def test(epoch):
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         # torch.save(state, './checkpoint/'+args.net+'-{}-ckpt.t7'.format(args.patch))
-        torch.save(state, os.path.join(save_path, f'{args.net}_best_{epoch}.pth.tar'))
+        torch.save(state, os.path.join(save_path, f'{args.net}_best.pth.tar'))
         best_acc = acc
     
     os.makedirs("log", exist_ok=True)
