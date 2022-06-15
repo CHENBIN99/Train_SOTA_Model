@@ -47,12 +47,15 @@ parser.add_argument('--dimhead', default="512", type=int)
 parser.add_argument('--convkernel', default='8', type=int)
 parser.add_argument('--cos', action='store_false', help='Train with cosine annealing scheduling')
 
+parser.add_argument('--dataset', type=str, default='cifar10',
+                    choices=['cifar10', 'cifar100', 'tinyimagenet'])
+
 parser.add_argument('--seed', default=1)
 
 args = parser.parse_args()
 
 # Tensorboard
-tb_writer = SummaryWriter(log_dir=f'./runs/{args.net}')
+tb_writer = SummaryWriter(log_dir=f'./runs/{args.dataset}/{args.net}')
 
 bs = int(args.bs)
 imsize = int(args.size)
@@ -82,54 +85,78 @@ if args.aug:
     M = 14
     transform_train.transforms.insert(0, RandAugment(N, M))
 
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=bs, shuffle=True, num_workers=8, pin_memory=True)
+if args.dataset == 'cifar10':
+    trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=bs, shuffle=True, num_workers=8, pin_memory=True)
 
-testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
-testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=8, pin_memory=True)
+    testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=8, pin_memory=True)
+    num_classes = 10
+elif args.dataset == 'cifar100':
+    trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=bs, shuffle=True, num_workers=8, pin_memory=True)
+
+    testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=transform_test)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=8, pin_memory=True)
+    num_classes = 100
+elif args.dataset == 'tinyimagenet':
+    if not os.path.exists(os.path.join('./data', 'tiny-imagenet-200')):
+        download_tinyimagenet(args)
+    trainset = torchvision.datasets.ImageFolder(root=os.path.join('./data', 'tiny-imagenet-200', 'train'),
+                                                transform=transform_train)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=bs, shuffle=True,
+                                              num_workers=8, pin_memory=True)
+    testset = torchvision.datasets.ImageFolder(root=os.path.join('./data', 'tiny-imagenet-200', 'val'),
+                                               transform=transform_test)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=bs, shuffle=False,
+                                             num_workers=8, pin_memory=True)
+    num_classes = 200
+
+else:
+    raise 'no match dataset'
 
 classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 # Model
 print('==> Building model..')
 if args.net == 'resnet18':
-    net = timm.create_model('resnet18', pretrained=True, num_classes=10)
+    net = timm.create_model('resnet18', pretrained=True, num_classes=num_classes)
 elif args.net == 'resnet34':
-    net = timm.create_model('resnet34', pretrained=True, num_classes=10)
+    net = timm.create_model('resnet34', pretrained=True, num_classes=num_classes)
 elif args.net == 'resnet50':
-    net = timm.create_model('resnet50', pretrained=True, num_classes=10)
+    net = timm.create_model('resnet50', pretrained=True, num_classes=num_classes)
 elif args.net == 'wrn50-2':
-    net = timm.create_model('wide_resnet50_2', pretrained=True, num_classes=10)
+    net = timm.create_model('wide_resnet50_2', pretrained=True, num_classes=num_classes)
 elif args.net == 'wrn101-2':
-    net = timm.create_model('wide_resnet101_2', pretrained=True, num_classes=10)
+    net = timm.create_model('wide_resnet101_2', pretrained=True, num_classes=num_classes)
 elif args.net == 'inc_v3':
-    net = timm.create_model('inception_v3', pretrained=True, num_classes=10)
+    net = timm.create_model('inception_v3', pretrained=True, num_classes=num_classes)
 elif args.net == 'inc_v4':
-    net = timm.create_model('inception_v4', pretrained=True, num_classes=10)
+    net = timm.create_model('inception_v4', pretrained=True, num_classes=num_classes)
 elif args.net == 'bit50-3':
-    net = timm.create_model('resnetv2_50x3_bitm', pretrained=True, num_classes=10)
+    net = timm.create_model('resnetv2_50x3_bitm', pretrained=True, num_classes=num_classes)
 elif args.net == 'bit101-3':
-    net = timm.create_model('resnetv2_101x3_bitm', pretrained=True, num_classes=10)
+    net = timm.create_model('resnetv2_101x3_bitm', pretrained=True, num_classes=num_classes)
 elif args.net == 'bit152-4':
-    net = timm.create_model('resnetv2_152x4_bitm', pretrained=True, num_classes=10)
+    net = timm.create_model('resnetv2_152x4_bitm', pretrained=True, num_classes=num_classes)
 elif args.net == 'vit-b':
-    net = timm.create_model('vit_base_patch16_224', pretrained=True, num_classes=10)
+    net = timm.create_model('vit_base_patch16_224', pretrained=True, num_classes=num_classes)
 elif args.net == 'vit-s':
-    net = timm.create_model('vit_small_patch16_224', pretrained=True, num_classes=10)
+    net = timm.create_model('vit_small_patch16_224', pretrained=True, num_classes=num_classes)
 elif args.net == 'vit-t':
-    net = timm.create_model('vit_tiny_patch16_224', pretrained=True, num_classes=10)
+    net = timm.create_model('vit_tiny_patch16_224', pretrained=True, num_classes=num_classes)
 elif args.net == 'deit-b':
-    net = timm.create_model('deit_base_patch16_224', pretrained=True, num_classes=10)
+    net = timm.create_model('deit_base_patch16_224', pretrained=True, num_classes=num_classes)
 elif args.net == 'deit-s':
-    net = timm.create_model('deit_small_patch16_224', pretrained=True, num_classes=10)
+    net = timm.create_model('deit_small_patch16_224', pretrained=True, num_classes=num_classes)
 elif args.net == 'deit-t':
-    net = timm.create_model('deit_tiny_patch16_224', pretrained=True, num_classes=10)
+    net = timm.create_model('deit_tiny_patch16_224', pretrained=True, num_classes=num_classes)
 elif args.net == 'swin-b':
-    net = timm.create_model('swin_base_patch4_window7_224', pretrained=True, num_classes=10)
+    net = timm.create_model('swin_base_patch4_window7_224', pretrained=True, num_classes=num_classes)
 elif args.net == 'swin-s':
-    net = timm.create_model('swin_small_patch4_window7_224', pretrained=True, num_classes=10)
+    net = timm.create_model('swin_small_patch4_window7_224', pretrained=True, num_classes=num_classes)
 elif args.net == 'swin-t':
-    net = timm.create_model('swin_tiny_patch4_window7_224', pretrained=True, num_classes=10)
+    net = timm.create_model('swin_tiny_patch4_window7_224', pretrained=True, num_classes=num_classes)
 else:
     raise 'no matched model'
 
@@ -229,7 +256,7 @@ def test(epoch):
         state = {"state_dict": net.state_dict(),
                  "optimizer": optimizer.state_dict(),
                  "scaler": scaler.state_dict()}
-        save_path = os.path.join('checkpoint', args.net)
+        save_path = os.path.join('checkpoint', args.dataset, args.net)
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         # torch.save(state, './checkpoint/'+args.net+'-{}-ckpt.t7'.format(args.patch))
@@ -239,7 +266,7 @@ def test(epoch):
     os.makedirs("log", exist_ok=True)
     content = time.ctime() + ' ' + f'Epoch {epoch}, lr: {optimizer.param_groups[0]["lr"]:.7f}, val loss: {test_loss:.5f}, acc: {(acc):.5f}'
     print(content)
-    with open(f'log/log_{args.net}.txt', 'a') as appender:
+    with open(f'log/log_{args.dataset}_{args.net}.txt', 'a') as appender:
         appender.write(content + "\n")
 
     tb_writer.add_scalar('Test/Loss', loss.item(), epoch)
@@ -264,7 +291,7 @@ if __name__ == '__main__':
         list_acc.append(acc)
 
         # Write out csv..
-        with open(f'log/log_{args.net}.csv', 'w') as f:
+        with open(f'log/log_{args.dataset}_{args.net}.csv', 'w') as f:
             writer = csv.writer(f, lineterminator='\n')
             writer.writerow(list_loss)
             writer.writerow(list_acc)

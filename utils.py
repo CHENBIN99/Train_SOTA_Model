@@ -13,6 +13,7 @@ import math
 import torch.nn as nn
 import torch.nn.init as init
 import torch
+from shutil import move
 
 
 def get_mean_and_std(dataset):
@@ -129,3 +130,38 @@ def format_time(seconds):
     if f == '':
         f = '0ms'
     return f
+
+
+def download_tinyimagenet(args):
+    url = 'http://cs231n.stanford.edu/tiny-imagenet-200.zip'
+    os.system(f'wget -p {os.path.join(args.root_path, args.data_root)} {url}')
+    os.system(f'unzip {os.path.join(args.root_path, args.data_root, "tiny-imagenet-200.zip")} '
+              f'-d '
+              f'{os.path.join(args.root_path, args.data_root, "tiny-imagenet-200")}')
+    deal_tinyimagenet(os.path.join(args.root_path, args.data_root, "tiny-imagenet-200"))
+
+
+def deal_tinyimagenet(folder_path):
+    target_folder = os.path.join(folder_path, 'val')
+
+    val_dict = {}
+    with open('./tiny-imagenet-200/val/val_annotations.txt', 'r') as f:
+        for line in f.readlines():
+            split_line = line.split('\t')
+            val_dict[split_line[0]] = split_line[1]
+
+    paths = glob.glob('./tiny-imagenet-200/val/images/*')
+    for path in paths:
+        file = path.split('/')[-1]
+        folder = val_dict[file]
+        if not os.path.exists(target_folder + str(folder)):
+            os.mkdir(target_folder + str(folder))
+            os.mkdir(target_folder + str(folder) + '/images')
+
+    for path in paths:
+        file = path.split('/')[-1]
+        folder = val_dict[file]
+        dest = target_folder + str(folder) + '/images/' + str(file)
+        move(path, dest)
+
+    os.rmdir('./tiny-imagenet-200/val/images')
