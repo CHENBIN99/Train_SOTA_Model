@@ -5,6 +5,7 @@
     - msr_init: net parameter initialization.
     - progress_bar: progress bar mimic xlua.progress.
 '''
+import glob
 import os
 import sys
 import time
@@ -14,6 +15,14 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch
 from shutil import move
+
+
+def get_project_path():
+    """得到项目路径"""
+    project_path = os.path.join(
+        os.path.dirname(__file__),
+    )
+    return os.path.abspath(project_path)
 
 
 def get_mean_and_std(dataset):
@@ -134,23 +143,23 @@ def format_time(seconds):
 
 def download_tinyimagenet(args):
     url = 'http://cs231n.stanford.edu/tiny-imagenet-200.zip'
-    os.system(f'wget -p {os.path.join(args.root_path, args.data_root)} {url}')
-    os.system(f'unzip {os.path.join(args.root_path, args.data_root, "tiny-imagenet-200.zip")} '
-              f'-d '
-              f'{os.path.join(args.root_path, args.data_root, "tiny-imagenet-200")}')
-    deal_tinyimagenet(os.path.join(args.root_path, args.data_root, "tiny-imagenet-200"))
+    os.system(f'wget -P {os.path.join(args.root_path, args.data_root)} {url}')
+    os.system(f'unzip {os.path.join(args.root_path, args.data_root, "tiny-imagenet-200.zip")}'
+              f' -d '
+              f'{os.path.join(args.root_path, args.data_root)}')
+    # deal_tinyimagenet(os.path.join(args.root_path, args.data_root, "tiny-imagenet-200"))
 
 
 def deal_tinyimagenet(folder_path):
     target_folder = os.path.join(folder_path, 'val')
 
     val_dict = {}
-    with open('./tiny-imagenet-200/val/val_annotations.txt', 'r') as f:
+    with open(os.path.join(target_folder, 'val_annotations.txt'), 'r') as f:
         for line in f.readlines():
             split_line = line.split('\t')
             val_dict[split_line[0]] = split_line[1]
 
-    paths = glob.glob('./tiny-imagenet-200/val/images/*')
+    paths = glob.glob(os.path.join(target_folder, 'image/*'))
     for path in paths:
         file = path.split('/')[-1]
         folder = val_dict[file]
@@ -164,4 +173,4 @@ def deal_tinyimagenet(folder_path):
         dest = target_folder + str(folder) + '/images/' + str(file)
         move(path, dest)
 
-    os.rmdir('./tiny-imagenet-200/val/images')
+    os.rmdir(os.path.join(target_folder, 'images'))
