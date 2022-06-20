@@ -47,32 +47,32 @@ def get_dataloader(args):
         transform_train.transforms.insert(0, RandAugment(N, M))
 
     if args.dataset == 'cifar10':
-        trainset = torchvision.datasets.CIFAR10(root=os.path.join(args.root_path, './data', 'cifar10'), train=True,
+        trainset = torchvision.datasets.CIFAR10(root=os.path.join(args.root_path, 'data', 'cifar10'), train=True,
                                                 download=True, transform=transform_train)
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.bs, shuffle=True, num_workers=8, pin_memory=True)
 
-        testset = torchvision.datasets.CIFAR10(root=os.path.join(args.root_path, './data', 'cifar10'), train=False,
+        testset = torchvision.datasets.CIFAR10(root=os.path.join(args.root_path, 'data', 'cifar10'), train=False,
                                                download=True, transform=transform_test)
         testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=8, pin_memory=True)
         num_classes = 10
     elif args.dataset == 'cifar100':
-        trainset = torchvision.datasets.CIFAR100(root=os.path.join(args.root_path, './data', 'cifar100'),
+        trainset = torchvision.datasets.CIFAR100(root=os.path.join(args.root_path, 'data', 'cifar100'),
                                                  train=True, download=True, transform=transform_train)
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.bs, shuffle=True, num_workers=8, pin_memory=True)
 
-        testset = torchvision.datasets.CIFAR100(root=os.path.join(args.root_path, './data', 'cifar100'), train=False,
+        testset = torchvision.datasets.CIFAR100(root=os.path.join(args.root_path, 'data', 'cifar100'), train=False,
                                                 download=True, transform=transform_test)
         testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=8, pin_memory=True)
         num_classes = 100
     elif args.dataset == 'tinyimagenet':
         if not os.path.exists(os.path.join(args.root_path, './data', 'tiny-imagenet-200')):
             download_tinyimagenet(args)
-        trainset = tinyimagenet_dataloader.TinyImageNet(root=os.path.join(args.root_path, './data', 'tiny-imagenet-200'),
+        trainset = tinyimagenet_dataloader.TinyImageNet(root=os.path.join(args.root_path, 'data', 'tiny-imagenet-200'),
                                                         train=True,
                                                         transform=transform_train)
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.bs, shuffle=False,
                                                   num_workers=8, pin_memory=True)
-        testset = tinyimagenet_dataloader.TinyImageNet(root=os.path.join(args.root_path, './data', 'tiny-imagenet-200'),
+        testset = tinyimagenet_dataloader.TinyImageNet(root=os.path.join(args.root_path, 'data', 'tiny-imagenet-200'),
                                                        train=False,
                                                        transform=transform_train)
         testloader = torch.utils.data.DataLoader(testset, batch_size=args.bs, shuffle=False,
