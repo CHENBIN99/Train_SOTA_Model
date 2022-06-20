@@ -26,7 +26,7 @@ iter = 0
 # parsers
 def get_parser():
     parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
-    parser.add_argument('--lr', default=1e-4, type=float, help='learning rate') # resnets.. 1e-3, Vit..1e-4?
+    parser.add_argument('--lr', default=1e-3, type=float, help='learning rate') # resnets.. 1e-3, Vit..1e-4?
     parser.add_argument('--opt', default="adam")
     parser.add_argument('--aug', action='store_true', help='use randomaug')
     parser.add_argument('--amp', action='store_true', help='enable AMP training')
