@@ -26,14 +26,14 @@ iter = 0
 # parsers
 def get_parser():
     parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
-    parser.add_argument('--lr', default=1e-3, type=float, help='learning rate') # resnets.. 1e-3, Vit..1e-4?
+    parser.add_argument('--lr', default=1e-4, type=float, help='learning rate') # resnets.. 1e-3, Vit..1e-4?
     parser.add_argument('--opt', default="adam")
-    parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--aug', action='store_true', help='use randomaug')
     parser.add_argument('--amp', action='store_true', help='enable AMP training')
     parser.add_argument('--mixup', action='store_true', help='add mixup augumentations')
     parser.add_argument('--net', type=str, default='vit-b')
     parser.add_argument('--bs', type=int, default='256')
+    parser.add_argument('--num_worker', type=int, default=4)
     parser.add_argument('--size', type=int, default="224")
     parser.add_argument('--n_epochs', type=int, default='50')
     parser.add_argument('--cos', action='store_false', help='Train with cosine annealing scheduling')
@@ -58,7 +58,7 @@ def train(epoch):
         loss = criterion(outputs, targets)
         optimizer.zero_grad()
         loss.backward()
-        optimizer.zero_grad()
+        optimizer.step()
 
         train_loss += loss.item()
         _, predicted = outputs.max(1)
