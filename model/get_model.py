@@ -7,7 +7,7 @@ def get_model(args, num_classes):
     elif args.net == 'resnet34':
         net = timm.create_model('resnet34', pretrained=True, num_classes=num_classes)
     elif args.net == 'resnet50':
-        net = timm.create_model('resnet50', pretrained=False, num_classes=num_classes)
+        net = timm.create_model('resnet50', pretrained=True, num_classes=num_classes)
     elif args.net == 'wrn50-2':
         net = timm.create_model('wide_resnet50_2', pretrained=True, num_classes=num_classes)
     elif args.net == 'wrn101-2':
