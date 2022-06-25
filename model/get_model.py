@@ -17,8 +17,12 @@ def get_model(args, num_classes):
         net = timm.create_model('inception_v3', pretrained=True, num_classes=num_classes)
     elif args.net == 'inc_v4':
         net = timm.create_model('inception_v4', pretrained=True, num_classes=num_classes)
+    elif args.net == 'bit50-1':
+        net = timm.create_model('resnetv2_50x1_bitm', pretrained=True, num_classes=num_classes)
     elif args.net == 'bit50-3':
         net = timm.create_model('resnetv2_50x3_bitm', pretrained=True, num_classes=num_classes)
+    elif args.net == 'bit101-1':
+        net = timm.create_model('resnetv2_101x1_bitm', pretrained=True, num_classes=num_classes)
     elif args.net == 'bit101-3':
         net = timm.create_model('resnetv2_101x3_bitm', pretrained=True, num_classes=num_classes)
     elif args.net == 'bit152-4':
