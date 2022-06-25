@@ -71,15 +71,19 @@ def get_dataloader(args):
     elif args.dataset == 'tinyimagenet':
         if not os.path.exists(os.path.join(args.root_path, './data', 'tiny-imagenet-200')):
             download_tinyimagenet(args)
-        trainset = tinyimagenet_dataloader.TinyImageNet(root=os.path.join(args.root_path, 'data', 'tiny-imagenet-200'),
-                                                        train=True, transform=transform_train)
-        trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.bs, shuffle=False,
-                                                  num_workers=args.num_worker, pin_memory=True)
-        testset = tinyimagenet_dataloader.TinyImageNet(root=os.path.join(args.root_path, 'data', 'tiny-imagenet-200'),
-                                                       train=False, transform=transform_train)
-        testloader = torch.utils.data.DataLoader(testset, batch_size=args.bs, shuffle=False,
-                                                 num_workers=args.num_worker, pin_memory=True)
+        # trainset = tinyimagenet_dataloader.TinyImageNet(root=os.path.join(args.root_path, 'data', 'tiny-imagenet-200'),
+        #                                                 train=True, transform=transform_train)
+        # trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.bs, shuffle=False,
+        #                                           num_workers=args.num_worker, pin_memory=True)
+        # testset = tinyimagenet_dataloader.TinyImageNet(root=os.path.join(args.root_path, 'data', 'tiny-imagenet-200'),
+        #                                                train=False, transform=transform_train)
+        # testloader = torch.utils.data.DataLoader(testset, batch_size=args.bs, shuffle=False,
+        #                                          num_workers=args.num_worker, pin_memory=True)
+        trainloader, testloader = tinyimagenet_dataloader.get_tiny(args)
         num_classes = 200
+
+
+
     else:
         raise 'no match dataset'
 

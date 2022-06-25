@@ -1,5 +1,6 @@
 import timm
 
+
 def get_model(args, num_classes):
     print('==> Building model..')
     if args.net == 'resnet18':
